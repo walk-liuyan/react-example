@@ -12,6 +12,7 @@ function* getInitList() {
     try {
         const res = yield axios.get('http://localhost:5000/todolist.json')
         const actions = actionCreater.initListAction(res.data)
+        // yield put(actions) 相当于等待 actions 处理完之后在执行 put(actions)
         yield put(actions)
     } catch (e) {
         console.log('err', e)
