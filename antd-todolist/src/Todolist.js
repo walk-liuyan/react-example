@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import 'antd/dist/antd.css'
-import { Input, Button, List } from 'antd'
 import store from './store'
 import * as types from './store/actionTypes'
 import * as actions from './store/actionCreater'
+import TodoListUI from './TodoListUI'
+import axios from 'axios'
 class TodoList extends Component {
     constructor(props) {
         super(props);
@@ -11,24 +12,38 @@ class TodoList extends Component {
         this.handleInputChange = this.handleInputChange.bind(this)
         this.handleStoreChange = this.handleStoreChange.bind(this)
         this.handleBtnClik = this.handleBtnClik.bind(this)
-        // 只要store里state改变，那么会自动执行handleStoreChange
+        this.handleItemDelete = this.handleItemDelete.bind(this)
+        // 只要store里state改变，那么会自动执行回调函数 handleStoreChange
         store.subscribe(this.handleStoreChange)
     }
 
     render() {
         return (
-            <div style={{padding: '10px'}}>
-                <Input value={this.state.inputValue}
-                 placeholder="todo info"
-                 onChange={this.handleInputChange}/>
-                <Button onClick={this.handleBtnClik}>submit</Button>
-                <List
-                  bordered
-                  dataSource={this.state.list}
-                  renderItem={(item, index) => (<List.Item onClick={this.handleItemDelete.bind(this, index)}>{item}</List.Item>)}
-                />
-            </div>
+            <TodoListUI
+              inputValue={this.state.inputValue}
+              handleInputChange = {this.handleInputChange}
+              handleBtnClik = {this.handleBtnClik}
+              list = {this.state.list}
+              handleItemDelete = {this.handleItemDelete}
+            />
         )
+    }
+
+    componentDidMount() {
+        // saga 方法
+        const action = actions.getInitList()
+        console.log('action', action)
+        store.dispatch(action)
+
+       /*  axios.get('/list.json').then((res)=>{
+            store.dispatch(actions.initListAction(res.data))
+        }).catch(()=>{
+        }) */
+        // 因为用了中间件，导致dispatch里可以放函数，自动去执行
+        /*
+        thunk 用法
+        store.dispatch(actions.getTodoList())
+        */
     }
 
     handleStoreChange() {
